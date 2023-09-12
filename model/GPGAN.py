@@ -1,4 +1,4 @@
-from models.blocks.block import *
+from blocks.block import *
 import torch.nn.functional as F
 import torch.nn.utils.spectral_norm as spectral_norm
 from plots.plots_feature_img import show_save_lr_hr_img
@@ -21,21 +21,19 @@ class GPGAN_Generator(nn.Module):
         self.conv3 = nn.Sequential(nn.ReflectionPad2d(1), nn.Conv2d(nf, nf, (3,3),bias=False), nn.LeakyReLU(negative_slope=0.2, inplace=True))
         self.conv4 = nn.Sequential(nn.ReflectionPad2d(1), nn.Conv2d(nf, out_channels,(3,3),bias=False))
         self.upsample2 = nn.Upsample(scale_factor=self.scale_factor)
-        # self.upsample3 = nn.ConvTranspose2d()
+      
     def forward(self, x):
         x1 = self.conv1(x)
-        # show_save_lr_hr_img(x1, x, "../feature2/{}_1.png".format(epoch))
-        # show_save_lr_hr_img(x2, x, "../feature2/{}_2.png".format(epoch))
+        
         x2 = self.basic_block(x1)
-        # x3 = self.upsample2(x2)
-        # show_save_lr_hr_img(x3, x, "../feature2/{}_3.png".format(epoch))
+     
         x3 = self.upsample((x2+x1))
         x4 = self.conv2(x3)
-        # show_save_lr_hr_img(x4, x, "../feature2/{}_4.png".format(epoch))
+       
         x5 = self.conv3(x4)
-        # show_save_lr_hr_img(x5, x, "../feature2/{}_5.png".format(epoch))
+ 
         x6 = self.conv4(x5)
-        # show_save_lr_hr_img(x6, x, "../feature2/{}_6.png".format(epoch))
+ 
         return x6
 
 
