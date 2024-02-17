@@ -19,20 +19,24 @@ class GPGAN_Generator(nn.Module):
         self.conv2 = nn.Sequential(nn.ReflectionPad2d(1), nn.Conv2d(nf, nf, (3,3),bias=False), nn.LeakyReLU(negative_slope=0.2, inplace=True))
         self.upsample = upsample_block(nf, scale_factor=self.scale_factor)
         self.conv3 = nn.Sequential(nn.ReflectionPad2d(1), nn.Conv2d(nf, nf, (3,3),bias=False), nn.LeakyReLU(negative_slope=0.2, inplace=True))
-        self.conv4 = nn.Sequential(nn.ReflectionPad2d(1), nn.Conv2d(nf, out_channels,(3,3),bias=False))
+        self.conv4 = nn.Sequential(nn.ReflectionPad2d(1), nn.Conv2d(nf, nf, (3,3),bias=False), nn.LeakyReLU(negative_slope=0.2, inplace=True))
+        self.conv5 = nn.Sequential(nn.ReflectionPad2d(1), nn.Conv2d(nf, out_channels,(3,3),bias=False))
+        
         self.upsample2 = nn.Upsample(scale_factor=self.scale_factor)
       
     def forward(self, x):
-        x1 = self.conv1(x)
         
-        x2 = self.basic_block(x1)
+        x1 = self.conv1(x)
+    
+        x2, x_con = self.basic_block(x1)
      
-        x3 = self.upsample((x2+x1))
-        x4 = self.conv2(x3)
+        x3 = self.upsample(self.conv2(x2 + x_con))
+        
+        x4 = self.conv3(x3)
        
-        x5 = self.conv3(x4)
+        x5 = self.conv4(x4)
  
-        x6 = self.conv4(x5)
+        x6 = self.conv5(x5)
  
         return x6
 
