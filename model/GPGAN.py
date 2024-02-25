@@ -13,7 +13,7 @@ class GPGAN_Generator(nn.Module):
 
         self.basic_block = ResidualInResidualDenseNetwork(nf, gc, n_basic_block)
 
-        self.conv2 = nn.Sequential(nn.ReflectionPad2d(1), nn.Conv2d(nf, nf, (3,3),bias=False), nn.ReLU())
+        self.conv2 = nn.Sequential(nn.ReflectionPad2d(1), nn.Conv2d(n_basic_block * nf, nf, (3,3),bias=False), nn.ReLU())
         self.upsample = upsample_block(nf, scale_factor=self.scale_factor)
         self.conv3 = nn.Sequential(nn.ReflectionPad2d(1), nn.Conv2d(nf, nf, (3,3),bias=False), nn.ReLU())
         self.conv4 = nn.Sequential(nn.ReflectionPad2d(1), nn.Conv2d(nf, nf, (3,3),bias=False), nn.ReLU())
