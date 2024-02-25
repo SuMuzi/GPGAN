@@ -3,7 +3,41 @@ import torch.nn.functional as F
 import torch.nn.utils.spectral_norm as spectral_norm
 from plots.plots_feature_img import show_save_lr_hr_img
 
+
+
 class GPGAN_Generator(nn.Module):
+    def __init__(self, in_channels, out_channels, nf=64, gc=32, scale_factor=3, n_basic_block=23):
+        super(GPGAN_Generator, self).__init__()
+        self.scale_factor = scale_factor
+        self.conv1 = nn.Sequential(nn.ReflectionPad2d(1), nn.Conv2d(in_channels, nf, (3,3),bias=False), nn.ReLU(negative_slope=0.2, inplace=True))
+
+        self.basic_block = ResidualInResidualDenseNetwork(nf, gc, n_basic_block)
+
+        self.conv2 = nn.Sequential(nn.ReflectionPad2d(1), nn.Conv2d(nf, nf, (3,3),bias=False), nn.ReLU())
+        self.upsample = upsample_block(nf, scale_factor=self.scale_factor)
+        self.conv3 = nn.Sequential(nn.ReflectionPad2d(1), nn.Conv2d(nf, nf, (3,3),bias=False), nn.ReLU())
+        self.conv4 = nn.Sequential(nn.ReflectionPad2d(1), nn.Conv2d(nf, nf, (3,3),bias=False), nn.ReLU())
+        self.conv5 = nn.Sequential(nn.ReflectionPad2d(1), nn.Conv2d(nf, out_channels,(3,3),bias=False))
+        
+        self.upsample2 = nn.Upsample(scale_factor=self.scale_factor)
+      
+    def forward(self, x):
+        
+        x1 = self.conv1(x)
+    
+        x2 = self.basic_block(x1)
+     
+        x3 = self.upsample(self.conv2(x2))
+        
+        x4 = self.conv3(x3)
+       
+        x5 = self.conv4(x4)
+ 
+        x6 = self.conv5(x5)
+ 
+        return x6
+        
+class GPGAN_Generator_2(nn.Module):
     def __init__(self, in_channels, out_channels, nf=64, gc=32, scale_factor=3, n_basic_block=23):
         super(GPGAN_Generator, self).__init__()
         self.scale_factor = scale_factor
